@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "carbon-pricing"
 version = "0.1.0"
-description = "Bộ công cụ mô hình hóa và phân tích định giá carbon."
+description = "Ứng dụng tính toán dấu chân carbon cho mỏ than."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"

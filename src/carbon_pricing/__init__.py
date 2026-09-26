@@ -1,4 +1,4 @@
-"""Bộ công cụ mô hình hóa và phân tích định giá carbon."""
+"""Ứng dụng tính toán dấu chân carbon cho mỏ than."""
 
 from carbon_pricing.core import carbon_cost, price_path
 
