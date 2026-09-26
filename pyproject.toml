@@ -16,7 +16,7 @@ dependencies = []
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "pre-commit>=3"]
 
 [project.urls]
-Repository = "https://github.com/pqhuy2013/carbon-pricing"
+Repository = "https://github.com/pqhuy2013/coal-mine-carbon-footprint"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/coal_mine_footprint"]

@@ -115,8 +115,8 @@ fugitive_methane(
 ## Cài đặt
 
 ```bash
-git clone https://github.com/pqhuy2013/carbon-pricing.git
-cd carbon-pricing
+git clone https://github.com/pqhuy2013/coal-mine-carbon-footprint.git
+cd coal-mine-carbon-footprint
 python -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
