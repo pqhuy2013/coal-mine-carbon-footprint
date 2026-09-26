@@ -74,13 +74,39 @@ Phân loại theo GHG Protocol:
 ## Lộ trình phát triển
 
 - [ ] Mô hình dữ liệu đầu vào của mỏ và kỳ báo cáo
-- [ ] Phát thải CH4 từ khai thác hầm lò và lộ thiên (Tier 1, 2, 3)
+- [x] Phát thải CH4 từ khai thác hầm lò và lộ thiên (Tier 1, 2, 3)
 - [ ] Phát thải từ đốt nhiên liệu (di động và cố định)
 - [ ] Phát thải từ điện năng tiêu thụ (Scope 2)
 - [ ] Phát thải từ vật liệu nổ
 - [ ] Tổng hợp kết quả và cường độ phát thải
 - [ ] Nhập dữ liệu từ tệp CSV/Excel và xuất báo cáo
 - [ ] Giao diện người dùng
+
+## Ví dụ sử dụng
+
+Tính phát thải mê-tan của mỏ hầm lò sản xuất 1 triệu tấn than/năm, dùng hệ số
+mặc định Tier 1 của IPCC:
+
+```python
+from coal_mine_footprint import MiningMethod, fugitive_methane
+
+ch4 = fugitive_methane(1_000_000, MiningMethod.UNDERGROUND)
+ch4.net_m3  # -> 20500000.0 (m³ CH4)
+ch4.ch4_tonnes  # -> 13735.0 (tấn CH4)
+ch4.co2e_tonnes("AR6")  # -> 409303.0 (tCO2e)
+```
+
+Dùng hệ số riêng của mỏ (Tier 2) và trừ lượng CH4 thu hồi:
+
+```python
+fugitive_methane(
+    1_000_000,
+    MiningMethod.UNDERGROUND,
+    mining_ef=12.0,  # m³ CH4 / tấn
+    post_mining_ef=1.5,
+    recovered_m3=2_000_000,
+)
+```
 
 ## Yêu cầu
 
@@ -113,9 +139,9 @@ pre-commit install
 ## Cấu trúc dự án
 
 ```
-src/carbon_pricing/   # mã nguồn ứng dụng
-tests/                # bộ kiểm thử pytest
-.github/workflows/    # CI (lint + test mỗi lần push và pull request)
+src/coal_mine_footprint/   # mã nguồn ứng dụng
+tests/                     # bộ kiểm thử pytest
+.github/workflows/         # CI (lint + test mỗi lần push và pull request)
 ```
 
 ## Giấy phép

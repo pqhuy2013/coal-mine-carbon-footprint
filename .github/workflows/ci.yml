@@ -23,4 +23,4 @@ jobs:
           ruff check .
           ruff format --check .
       - name: Test
-        run: pytest --cov=carbon_pricing
+        run: pytest --cov=coal_mine_footprint
