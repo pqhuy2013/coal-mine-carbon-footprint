@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "carbon-pricing"
+name = "coal-mine-footprint"
 version = "0.1.0"
-description = "Bộ công cụ mô hình hóa và phân tích định giá carbon."
+description = "Ứng dụng tính toán dấu chân carbon cho mỏ than."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
@@ -16,10 +16,10 @@ dependencies = []
 dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6", "pre-commit>=3"]
 
 [project.urls]
-Repository = "https://github.com/pqhuy2013/carbon-pricing"
+Repository = "https://github.com/pqhuy2013/coal-mine-carbon-footprint"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/carbon_pricing"]
+packages = ["src/coal_mine_footprint"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
