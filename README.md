@@ -5,8 +5,9 @@ mỏ than. Ứng dụng định lượng lượng phát thải khí nhà kính (
 một kỳ báo cáo, quy đổi ra tấn CO2 tương đương (tCO2e), phân theo từng nguồn
 phát thải và từng phạm vi (Scope 1, 2, 3).
 
-> **Trạng thái:** đang ở giai đoạn khởi tạo. Các mô-đun tính toán sẽ được xây
-> dựng dần theo [lộ trình](#lộ-trình-phát-triển) bên dưới.
+Ứng dụng có giao diện web để kỹ sư mỏ nhập số liệu và xuất kết quả ra tệp
+Excel, phục vụ báo cáo kiểm kê KNK gửi cơ quan quản lý. Phiên bản hiện tại
+dành cho **mỏ than hầm lò**.
 
 ## Mục tiêu
 
@@ -73,39 +74,60 @@ Phân loại theo GHG Protocol:
 
 ## Lộ trình phát triển
 
-- [ ] Mô hình dữ liệu đầu vào của mỏ và kỳ báo cáo
+- [x] Mô hình dữ liệu đầu vào của mỏ và kỳ báo cáo
 - [x] Phát thải CH4 từ khai thác hầm lò và lộ thiên (Tier 1, 2, 3)
-- [ ] Phát thải từ đốt nhiên liệu (di động và cố định)
-- [ ] Phát thải từ điện năng tiêu thụ (Scope 2)
-- [ ] Phát thải từ vật liệu nổ
-- [ ] Tổng hợp kết quả và cường độ phát thải
-- [ ] Nhập dữ liệu từ tệp CSV/Excel và xuất báo cáo
-- [ ] Giao diện người dùng
+- [x] Phát thải từ đốt nhiên liệu (di động và cố định)
+- [x] Phát thải từ điện năng tiêu thụ (Scope 2)
+- [x] Phát thải từ vật liệu nổ
+- [x] Tổng hợp kết quả và cường độ phát thải
+- [x] Xuất báo cáo Excel
+- [ ] Nhập số liệu từ tệp Excel
+- [x] Giao diện web nhập số liệu
+- [ ] Triển khai ứng dụng lên máy chủ cho kỹ sư dùng chung
+- [ ] Đối chiếu với biểu mẫu báo cáo kiểm kê KNK theo quy định hiện hành
 
-## Ví dụ sử dụng
+## Sử dụng ứng dụng web
 
-Tính phát thải mê-tan của mỏ hầm lò sản xuất 1 triệu tấn than/năm, dùng hệ số
-mặc định Tier 1 của IPCC:
+Sau khi [cài đặt](#cài-đặt), chạy:
 
-```python
-from coal_mine_footprint import MiningMethod, fugitive_methane
-
-ch4 = fugitive_methane(1_000_000, MiningMethod.UNDERGROUND)
-ch4.net_m3  # -> 20500000.0 (m³ CH4)
-ch4.ch4_tonnes  # -> 13735.0 (tấn CH4)
-ch4.co2e_tonnes("AR6")  # -> 409303.0 (tCO2e)
+```bash
+streamlit run app.py
 ```
 
-Dùng hệ số riêng của mỏ (Tier 2) và trừ lượng CH4 thu hồi:
+Trình duyệt sẽ mở địa chỉ http://localhost:8501. Nhập số liệu theo từng thẻ:
+
+1. **Sản lượng & khí mê-tan:** sản lượng than, cấp độ tính (Tier 1, 2, 3),
+   lượng CH4 thu hồi và đốt tại mỏ.
+2. **Nhiên liệu:** bảng nhiên liệu tiêu thụ (diesel, xăng, dầu FO, LPG) theo
+   nguồn di động hoặc cố định.
+3. **Điện năng:** điện mua từ lưới (kWh) và hệ số phát thải lưới điện.
+4. **Vật liệu nổ:** khối lượng thuốc nổ (kg) và hệ số phát thải.
+5. **Kết quả:** tổng phát thải, Scope 1, Scope 2, cường độ phát thải, bảng chi
+   tiết theo nguồn và nút **Tải báo cáo Excel**.
+
+Tệp Excel gồm 4 trang: Thông tin chung, Kết quả, Số liệu đầu vào và Hệ số phát
+thải (ghi rõ giá trị và nguồn của từng hệ số).
+
+> **Lưu ý về hệ số:** hệ số lưới điện mặc định (0,6592 tCO2/MWh, năm 2023) và
+> hệ số thuốc nổ mặc định (0,17 tCO2/tấn, ước tính cho ANFO) chỉ để tham khảo.
+> Hãy nhập hệ số chính thức mới nhất và hệ số theo loại thuốc nổ thực tế của mỏ.
+
+## Dùng như thư viện Python
 
 ```python
-fugitive_methane(
-    1_000_000,
-    MiningMethod.UNDERGROUND,
-    mining_ef=12.0,  # m³ CH4 / tấn
-    post_mining_ef=1.5,
-    recovered_m3=2_000_000,
+from coal_mine_footprint.combustion import CombustionType, Fuel
+from coal_mine_footprint.inventory import FuelUse, InventoryInput, compute_inventory
+
+result = compute_inventory(
+    InventoryInput(
+        coal_production_t=1_000_000,
+        fuels=[FuelUse(Fuel.DIESEL, CombustionType.MOBILE, 500_000)],  # lít
+        electricity_kwh=40_000_000,
+        grid_ef_t_per_mwh=0.6592,
+    )
 )
+result.total_co2e_t  # tổng phát thải (tCO2e, GWP AR5)
+result.intensity_kg_per_t  # kgCO2e / tấn than
 ```
 
 ## Yêu cầu
@@ -139,7 +161,8 @@ pre-commit install
 ## Cấu trúc dự án
 
 ```
-src/coal_mine_footprint/   # mã nguồn ứng dụng
+app.py                     # giao diện web (Streamlit)
+src/coal_mine_footprint/   # thư viện tính toán và xuất báo cáo
 tests/                     # bộ kiểm thử pytest
 .github/workflows/         # CI (lint + test mỗi lần push và pull request)
 ```

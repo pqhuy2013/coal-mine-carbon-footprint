@@ -1,0 +1,2 @@
+# Dùng khi triển khai lên Streamlit Community Cloud: cài gói này cùng các phụ thuộc.
+.

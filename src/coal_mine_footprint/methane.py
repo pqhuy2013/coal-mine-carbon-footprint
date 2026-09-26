@@ -18,6 +18,8 @@ tính ở đây.
 from dataclasses import dataclass
 from enum import Enum
 
+from coal_mine_footprint.ghg import DEFAULT_GWP, GasEmissions
+
 
 class MiningMethod(str, Enum):
     """Phương pháp khai thác."""
@@ -69,9 +71,10 @@ TIER1_POST_MINING_EF: dict[MiningMethod, dict[EmissionFactorLevel, float]] = {
     },
 }
 
-# Hệ số tiềm năng nóng lên toàn cầu 100 năm của CH4 theo báo cáo IPCC.
-# AR6 dùng giá trị cho CH4 có nguồn gốc hóa thạch.
-GWP100_CH4: dict[str, float] = {"AR4": 25.0, "AR5": 28.0, "AR6": 29.8}
+
+def m3_to_tonnes(volume_m3: float) -> float:
+    """Đổi thể tích CH4 (m³) sang khối lượng (tấn)."""
+    return volume_m3 * CH4_DENSITY_KG_PER_M3 / 1000
 
 
 @dataclass(frozen=True)
@@ -96,13 +99,11 @@ class MethaneEmissions:
     @property
     def ch4_tonnes(self) -> float:
         """Khối lượng CH4 thực phát thải (tấn)."""
-        return self.net_m3 * CH4_DENSITY_KG_PER_M3 / 1000
+        return m3_to_tonnes(self.net_m3)
 
-    def co2e_tonnes(self, gwp: str = "AR6") -> float:
+    def co2e_tonnes(self, gwp: str = DEFAULT_GWP) -> float:
         """Phát thải quy đổi ra tấn CO2 tương đương theo GWP đã chọn."""
-        if gwp not in GWP100_CH4:
-            raise ValueError(f"gwp phải là một trong {sorted(GWP100_CH4)}")
-        return self.ch4_tonnes * GWP100_CH4[gwp]
+        return GasEmissions(ch4_t=self.ch4_tonnes).co2e_t(gwp)
 
 
 def fugitive_methane(
